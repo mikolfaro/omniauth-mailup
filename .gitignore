@@ -20,3 +20,4 @@ tmp
 .rbenv-gemsets
 .rbenv-vars
 .rspec
+.idea
