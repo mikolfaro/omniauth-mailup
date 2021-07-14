@@ -1,65 +1,70 @@
 require 'spec_helper'
 require 'omniauth-mailup'
 require 'base64'
+require 'pry'
+require 'pry-byebug'
 
 describe OmniAuth::Strategies::MailUp do
   before :each do
-    @request = double('Request')
-    @request.stub(:params) { {} }
-    @request.stub(:cookies) { {} }
+    @request = double('Request', params: {}, cookies: {}, env: {})
+    allow(@request).to receive(:params) { {} }
+    allow(@request).to receive(:cookies) { {} }
   end
-  
+
   subject do
     OmniAuth::Strategies::MailUp.new(nil, @options || {}).tap do |strategy|
-      strategy.stub(:request) { @request }
+      allow(strategy).to receive(:request) { @request }
     end
   end
 
 	describe '#client' do
     it 'has correct MailUp api site' do
-      subject.options.client_options.site.should eq('https://services.mailup.com')
+      site = subject.options.client_options.site
+      expect(site).to eq('https://services.mailup.com')
     end
 
     it 'has correct access token path' do
-      subject.options.client_options.token_url.should eq('/Authorization/OAuth/Token')
+      token_url = subject.options.client_options.token_url
+      expect(token_url).to eq('/Authorization/OAuth/Token')
     end
 
     it 'has correct authorize url' do
-      subject.options.client_options.authorize_url.should eq('/Authorization/OAuth/LogOn')
+      authorize_url = subject.options.client_options.authorize_url
+      expect(authorize_url).to eq('/Authorization/OAuth/LogOn')
     end
   end
 
 	describe '#callback_path' do
     it 'should have the correct callback path' do
-      subject.callback_path.should eq('/auth/mailup/callback')
+      expect(subject.callback_path).to eq('/auth/mailup/callback')
     end
   end
-  
+
   describe '#credentials' do
     before :each do
       @access_token = double('OAuth2::AccessToken')
-      @access_token.stub(:token)
-      @access_token.stub(:expires?)
-      @access_token.stub(:expires_at)
-      @access_token.stub(:refresh_token)
-      subject.stub(:access_token) { @access_token }
+      allow(@access_token).to receive(:token)
+      allow(@access_token).to receive(:expires?)
+      allow(@access_token).to receive(:expires_at)
+      allow(@access_token).to receive(:refresh_token)
+      allow(subject).to receive(:access_token) { @access_token }
     end
 
     it 'returns a Hash' do
-      subject.credentials.should be_a(Hash)
+      expect(subject.credentials).to be_a(Hash)
     end
 
     it 'returns the token' do
-      @access_token.stub(:token) { '123' }
-      subject.credentials['token'].should eq('123')
+      allow(@access_token).to receive(:token) { '123' }
+      expect(subject.credentials['token']).to eq('123')
     end
 
     it 'returns the expiry status' do
-      @access_token.stub(:expires?) { true }
-      subject.credentials['expires'].should eq(true)
+      allow(@access_token).to receive(:expires?) { true }
+      expect(subject.credentials['expires']).to eq(true)
 
-      @access_token.stub(:expires?) { false }
-      subject.credentials['expires'].should eq(false)
+      allow(@access_token).to receive(:expires?) { false }
+      expect(subject.credentials['expires']).to eq(false)
     end
   end
 end

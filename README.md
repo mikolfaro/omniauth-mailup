@@ -1,6 +1,6 @@
 # OmniAuth Mailup
 
-MailUp OAuth2 Strategy for OmniAuth 1.0.
+MailUp OAuth2 Strategy for OmniAuth 2.0.
 
 ## Installing
 

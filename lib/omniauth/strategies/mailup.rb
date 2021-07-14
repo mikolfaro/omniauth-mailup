@@ -4,7 +4,13 @@ require 'multi_json'
 module OmniAuth
   module Strategies
     class MailUp < OmniAuth::Strategies::OAuth2
-      
+
+      def initialize(app, *args, &block)
+        super(app, *args, &block)
+
+        @env = {}
+      end
+
       option :name, :mailup
 
       option :client_options, {
@@ -12,13 +18,13 @@ module OmniAuth
         authorize_url: "/Authorization/OAuth/LogOn",
         token_url: "/Authorization/OAuth/Token"
       }
-      
+
       # TODO: Do we need this?
       option :provider_ignores_state, true
 
       # AuthHash data for Omniauth
       uid { raw_info["UID"] } # TODO: Need uid from MailUp
-      
+
       info do
         {
           company: raw_info["Company"],
@@ -27,7 +33,7 @@ module OmniAuth
           is_trial: raw_info["IsTrial"]
         }
       end
-      
+
       # Get more information about the user.
       def raw_info
         req = access_token.get('/API/v1.1/Rest/ConsoleService.svc/Console/Authentication/Info')
